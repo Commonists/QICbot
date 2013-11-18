@@ -77,10 +77,11 @@ def doTagging( imageList, startTag, endTag, summary ) :
       if string.find(text, startTag ) < 0 :
         text += "\n" + startTag + endTag + "\n"
         if not debug:
-          try :
-            page.put(text, comment=summary, minorEdit=False)
-          except pywikibot.LockedPage :
-            print image.encode("utf-8") + " has an editprotected description page!"
+          #try :
+          #  page.put(text, comment=summary, minorEdit=False)
+          #except pywikibot.LockedPage :
+          #  print image.encode("utf-8") + " has an editprotected description page!"
+          tryPut(page,text,summary)
         else:
           pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
           pywikibot.showDiff(oldtext, text)
@@ -165,6 +166,29 @@ def cleanCandidatePage( text ) :
   return text
 
 #
+# Fault tolerant page.put
+#
+
+def tryPut( page, newText, comment ) :
+  title = page.title()
+  while True :
+    try :
+      page.put( newText, comment=comment, minorEdit=False )
+      break
+    except pywikibot.LockedPage :
+      print title.encode("utf-8") + " is editprotected!"
+      break
+    except :
+      print "write seems to have failed"
+      page = pywikibot.Page(site, title )
+      if page.exists() :
+        text = page.get(get_redirect=True)
+        if text == newText :
+          print "write did succeed"
+          break
+
+
+#
 # Open QIC page and extract nominations
 #
 
@@ -183,27 +207,44 @@ inConsensual = 0
 
 newText = ''
 numChanges = 0
-userNote = {}
-galleryMove = {}
-tagImages = []
-unassessed = []
 currentImage = ''
 currentHeading = ''
 currentStatus = 0
 currentArchive = ''
 
 #bakArchiveFileName = os.environ['HOME'] + '/qic_bot/archive.tmp'
-bakArchiveFileName = 'archive.tmp'
+bakArchiveFileName = 'tmp.archive'
+
+def marshalData() :
+  global bakArchiveFileName
+  f = open(bakArchiveFileName, "wb")
+  marshall.dump(archive,f) 
+  marshall.dump(archiveCR,f) 
+  marshall.dump(userNote,f) 
+  marshall.dump(galleryMove,f) 
+  marshall.dump(tagImages,f) 
+  marshall.dump(unassessed,f) 
+  f.close()
 
 consensual = ''
+
 if os.path.isfile( bakArchiveFileName ) :
-  f = codecs.open(bakArchiveFileName, "r", "utf-8")
-  archive = f.read() 
+  f = open(bakArchiveFileName, "rb")
+  archive = marshall.load(f) 
+  archiveCR = marshall.load(f)
+  userNote = marshall.load(f)
+  galleryMove = marshal.load(f)
+  tagImages = marshall.load(f)
+  unassessed = marshal.load(f)
   f.close()
 else :
   archive = ''
+  archiveCR = ''
+  userNote = {}
+  galleryMove = {}
+  tagImages = []
+  unassessed = []
 
-archiveCR = ''
 
 for line in string.split(text, "\n") :
 
@@ -375,14 +416,15 @@ if inCRSection :
 #print newText.encode("utf-8")
 #print archiveCR.encode("utf-8")
 
-f = codecs.open( bakArchiveFileName, "w", "utf-8")
-f.write( archive )
-f.close()
+# write extracted images
+#marshalData()
 
 newText = cleanCandidatePage(newText)
 
 if not debug:
-  page.put(newText, comment="extract processed nominations older than %d days" % waitDays, minorEdit=False)
+  #page.put(newText, comment="extract processed nominations older than %d days" % waitDays, minorEdit=False)
+  tryPut(page,newText,"extract processed nominations older than %d days" % waitDays)
+
 else:
   pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
   pywikibot.showDiff(oldtext, newText)
@@ -412,7 +454,8 @@ if page.exists() :
       newText += line + "\n"
 
   if not debug:
-    page.put( newText.rstrip("\n"), comment="moving categorized images", minorEdit=False )
+    #page.put( newText.rstrip("\n"), comment="moving categorized images", minorEdit=False )
+    tryPut(page,newText.rstrip("\n"),"moving categorized images")
   else:
     pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
     pywikibot.showDiff(text, newText.rstrip("\n"))
@@ -430,8 +473,12 @@ for key in galleryMove.keys() :
 
   newText = galleryInsert( galleryMove[key], text )
 
+  if text == newText :
+    print "Nothing to do here"
+    continue
+
   if not debug:
-    page.put( newText, comment="sorted into the appropriate category", minorEdit=False )
+    tryPut(page,newText,"sorted into the appropriate category")
   else:
     pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
     pywikibot.showDiff(text, newText)
@@ -456,7 +503,8 @@ for key in galleryMove.keys() :
     newText = galleryLimit( 4, galleryInsert( galleryMove[key], text ) )
 
     if not debug:
-      page.put( newText, comment="rebuilding preview", minorEdit=False )
+      #page.put( newText, comment="rebuilding preview", minorEdit=False )
+      tryPut(page,newText,"rebuilding preview")
     else:
       pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
       pywikibot.showDiff(text, newText)
@@ -492,11 +540,15 @@ else :
   text = "<gallery>\n" + archive + "</gallery>\n==Consensual review==\n" + archiveCR
 
 if not debug:
-  page.put( text, comment="archive old nominations", minorEdit=False )
+  #page.put( text, comment="archive old nominations", minorEdit=False )
+  tryPut(page,text,"archive old nominations")
 else:
   pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
   pywikibot.showDiff(oldtext, text)
-os.unlink( bakArchiveFileName )
+
+# delete backup files
+if os.path.isfile( bakArchiveFileName ) :
+  os.unlink( bakArchiveFileName )
 
 #
 # Tag unassessed images
@@ -532,7 +584,8 @@ else :
   text = "<gallery>\n" + string.join(tagImages, "\n") + "</gallery>"
 
 if not debug:
-  page.put( text.rstrip("\n"), comment="please sort these into the appropriate categories", minorEdit=False )
+  #page.put( text.rstrip("\n"), comment="please sort these into the appropriate categories", minorEdit=False )
+  tryPut(page,text.rstrip("\n"),"please sort these into the appropriate categories")
 else:
   pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
   pywikibot.showDiff(oldtext, text.rstrip("\n"))
@@ -561,7 +614,8 @@ for key in userNote.keys() :
 
     text = text + "\n==Quality Image Promotion==\n" + userNote[key]
     if not debug:
-      page.put(text, comment='Notify user of promoted Quality Image(s)', minorEdit=False)
+      #page.put(text, comment='Notify user of promoted Quality Image(s)', minorEdit=False)
+      tryPut(page,text,'Notify user of promoted Quality Image(s)')
     else:
       pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
       pywikibot.showDiff(oldtext, text)
