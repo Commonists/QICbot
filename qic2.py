@@ -171,6 +171,7 @@ def cleanCandidatePage( text ) :
 
 def tryPut( page, newText, comment ) :
   title = page.title()
+  numTry = 20
   while True :
     try :
       page.put( newText, comment=comment, minorEdit=False )
@@ -179,7 +180,11 @@ def tryPut( page, newText, comment ) :
       print title.encode("utf-8") + " is editprotected!"
       break
     except :
-      print "write seems to have failed"
+      print "write to '%s' seems to have failed" % title.encode("utf-8")
+      numTry -= 1
+      if numTry == 0 :
+        print "giving up!"
+        break
       page = pywikibot.Page(site, title )
       if page.exists() :
         text = page.get(get_redirect=True)
@@ -365,10 +370,11 @@ for line in string.split(text, "\n") :
         imageAndComments = imageAndComments.replace(u'|2=', u'|3=')
         imageAndComments = imageAndComments.replace(u'|1=', u'|2=')
 
-        try:
-          userNote[userRE.search(line).group(1)] += "{{QICpromoted|" + imageAndComments + "\n" 
-        except KeyError:
-          userNote[userRE.search(line).group(1)] = "{{QICpromoted|" + imageAndComments + "\n" 
+        if userRE.search(line) != None :
+          try:
+            userNote[userRE.search(line).group(1)] += "{{QICpromoted|" + imageAndComments + "\n" 
+          except KeyError:
+            userNote[userRE.search(line).group(1)] = "{{QICpromoted|" + imageAndComments + "\n" 
 
         tagImages.append(image)
         discardLine = True
@@ -603,7 +609,7 @@ doTagging( tagImages, QITag, '}}', "Bot: Tag promoted Quality Image" )
 
 for key in userNote.keys() :
   page = pywikibot.Page(site, "User talk:" + key )
-  print "notifying user %s..." % key
+  print "notifying user %s..." % key.encode("utf-8")
 
   try :
     if page.exists() :
@@ -612,7 +618,7 @@ for key in userNote.keys() :
     else :
       text = '{{Welcome|realName=|name=' + key + "}}<br>What better way than starting off with a Quality Image promotion could there be? :-) --~~~~\n\n"
 
-    text = text + "\n==Quality Image Promotion==\n" + userNote[key]
+    text = text + "\n==Quality Image Promotion==\n" + userNote[key] + "\n--~~~~\n"
     if not debug:
       #page.put(text, comment='Notify user of promoted Quality Image(s)', minorEdit=False)
       tryPut(page,text,'Bot: Notify user of promoted Quality Image(s)')
