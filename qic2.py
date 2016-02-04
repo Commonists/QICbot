@@ -390,7 +390,7 @@ if inCRSection :
   if currentStatus == 0 or currentImage == '' :
     newText += currentArchive
   else :
-    print ( "Closing old CR status=%d %s (%s by %s)" % ( currentStatus, currentHeading, currentImage, currentUser ) ).encode("utf-8")
+    print ( "Bot: Closing old CR status=%d %s (%s by %s)" % ( currentStatus, currentHeading, currentImage, currentUser ) ).encode("utf-8")
     archiveCR += currentArchive
 
     if currentStatus == 1 :
@@ -423,7 +423,7 @@ newText = cleanCandidatePage(newText)
 
 if not debug:
   #page.put(newText, comment="extract processed nominations older than %d days" % waitDays, minorEdit=False)
-  tryPut(page,newText,"extract processed nominations older than %d days" % waitDays)
+  tryPut(page,newText,"Bot: Extract processed nominations older than %d days" % waitDays)
 
 else:
   pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
@@ -455,7 +455,7 @@ if page.exists() :
 
   if not debug:
     #page.put( newText.rstrip("\n"), comment="moving categorized images", minorEdit=False )
-    tryPut(page,newText.rstrip("\n"),"moving categorized images")
+    tryPut(page,newText.rstrip("\n"),"Bot: Moving categorized images")
   else:
     pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
     pywikibot.showDiff(text, newText.rstrip("\n"))
@@ -478,7 +478,7 @@ for key in galleryMove.keys() :
     continue
 
   if not debug:
-    tryPut(page,newText,"sorted into the appropriate category")
+    tryPut(page,newText,"Bot: Sorted into the appropriate category")
   else:
     pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
     pywikibot.showDiff(text, newText)
@@ -504,7 +504,7 @@ for key in galleryMove.keys() :
 
     if not debug:
       #page.put( newText, comment="rebuilding preview", minorEdit=False )
-      tryPut(page,newText,"rebuilding preview")
+      tryPut(page,newText,"Bot: Rebuilding preview")
     else:
       pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
       pywikibot.showDiff(text, newText)
@@ -541,7 +541,7 @@ else :
 
 if not debug:
   #page.put( text, comment="archive old nominations", minorEdit=False )
-  tryPut(page,text,"archive old nominations")
+  tryPut(page,text,"Bot: Archive old nominations")
 else:
   pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
   pywikibot.showDiff(oldtext, text)
@@ -554,7 +554,7 @@ if os.path.isfile( bakArchiveFileName ) :
 # Tag unassessed images
 #
 
-doTagging( unassessed, unassessedCat, '', "Tag as unassessed Quality Image Candidate" )
+doTagging( unassessed, unassessedCat, '', "Bot: Tag as unassessed Quality Image Candidate" )
 
 
 if len(tagImages) == 0: 
@@ -585,7 +585,7 @@ else :
 
 if not debug:
   #page.put( text.rstrip("\n"), comment="please sort these into the appropriate categories", minorEdit=False )
-  tryPut(page,text.rstrip("\n"),"please sort these into the appropriate categories")
+  tryPut(page,text.rstrip("\n"),"Bot: please sort these into the appropriate categories")
 else:
   pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
   pywikibot.showDiff(oldtext, text.rstrip("\n"))
@@ -594,7 +594,7 @@ else:
 # Tag images
 #
 
-doTagging( tagImages, QITag, '}}', "Tag promoted Quality Image" )
+doTagging( tagImages, QITag, '}}', "Bot: Tag promoted Quality Image" )
 
 
 #
@@ -610,12 +610,12 @@ for key in userNote.keys() :
       text = page.get(get_redirect=True)
       oldtext = text
     else :
-      text = 'Welcome to commons ' + key + ". What better way than starting off with a Quality Image promotion could there be? :-) --~~~~\n\n"
+      text = '{{Welcome|realName=|name=' + key + "}}<br>What better way than starting off with a Quality Image promotion could there be? :-) --~~~~\n\n"
 
     text = text + "\n==Quality Image Promotion==\n" + userNote[key]
     if not debug:
       #page.put(text, comment='Notify user of promoted Quality Image(s)', minorEdit=False)
-      tryPut(page,text,'Notify user of promoted Quality Image(s)')
+      tryPut(page,text,'Bot: Notify user of promoted Quality Image(s)')
     else:
       pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
       pywikibot.showDiff(oldtext, text)
