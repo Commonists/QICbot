@@ -478,7 +478,7 @@ for key in galleryMove.keys() :
     continue
 
   if not debug:
-    tryPut(page,newText,"sorted into the appropriate category")
+    tryPut(page,newText,"Bot: Sorted into the appropriate category")
   else:
     pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
     pywikibot.showDiff(text, newText)
@@ -541,7 +541,7 @@ else :
 
 if not debug:
   #page.put( text, comment="archive old nominations", minorEdit=False )
-  tryPut(page,text,"archive old nominations")
+  tryPut(page,text,"Bot: Archive old nominations")
 else:
   pywikibot.output(u">>> \03{lightpurple}%s\03{default} <<<" % page.title())
   pywikibot.showDiff(oldtext, text)
@@ -610,7 +610,7 @@ for key in userNote.keys() :
       text = page.get(get_redirect=True)
       oldtext = text
     else :
-      text = '{{Welcome|realName=|name=' + key + ". What better way than starting off with a Quality Image promotion could there be? :-) --~~~~\n\n"
+      text = '{{Welcome|realName=|name=' + key + "}}<br>What better way than starting off with a Quality Image promotion could there be? :-) --~~~~\n\n"
 
     text = text + "\n==Quality Image Promotion==\n" + userNote[key]
     if not debug:
