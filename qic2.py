@@ -73,7 +73,7 @@ def doTagging( imageList, startTag, endTag, summary ) :
           page = page.getRedirectTarget()
 
       # already tagged maybe?
-      oldtext = text
+      oldtext = text.replace(unassessedCat, '')
       if string.find(text, startTag ) < 0 :
         text += "\n" + startTag + endTag + "\n"
         if not debug:
