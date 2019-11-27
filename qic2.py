@@ -196,14 +196,17 @@ def tryPut( page, newText, comment ) :
 #
 # Open QIC page and extract nominations
 #
-
 page = pywikibot.Page(site, pageName + "/candidate list" )
 text = page.get(get_redirect=True)
 oldtext = text
 
+stopPage = pywikibot.Page(site, "Commons:Quality images candidates/stopBOT" )
+stopPagetext = stopPage.get(get_redirect=True)
+stoptext = stopPagetext
+
 # abort if the qicbot marker is missing from the page 
-if string.find(text, "<!-- QICBOT_ON -->") < 0:
-  print "the string <!-- QICBOT_ON --> was not found on page " + pageName + "/candidate list"
+if string.find(stoptext, "<!-- QICBOT_ON -->") < 0:
+  print "the string <!-- QICBOT_ON --> was not found on page Commons:Quality images candidates/stopBOT"
   sys.exit(0)
 
 inGallery = False
