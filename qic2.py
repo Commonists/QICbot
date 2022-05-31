@@ -56,6 +56,8 @@ parentRE = re.compile("^(.*)/[^/]*$")
 def doTagging(imageList, startTag, endTag, summary):
     global SITE, debug
     for image in imageList:
+		if 'File:' not in image:
+			image = "File:" + image
         page = pywikibot.Page(SITE, image)
 
         if page.exists():
@@ -85,7 +87,10 @@ def doTagging(imageList, startTag, endTag, summary):
                     )
                     pywikibot.showDiff(oldtext, text)
         else:
-            print("Oops " + image.encode("utf-8") + " doesn't exist...")
+			try:
+				print("Oops " + image.encode("utf-8") + " doesn't exist...")
+			except:
+				print("Error with" + str(image))
 
 
 #
