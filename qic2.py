@@ -62,34 +62,33 @@ def doTagging(imageList, startTag, endTag, summary):
 			print("Oops " + image + " isn't a file...")
 		else:
 			if page.exists():
-				# ... and the rest also indented one extra level
-			print("Tagging " + image)
+				print("Tagging " + image)
 
-			# follow redirects to the actual image page
-			while True:
-				try:
-					text = page.get()
-					break
-				except pywikibot.IsRedirectPage:
-					page = page.getRedirectTarget()
+				# follow redirects to the actual image page
+				while True:
+					try:
+						text = page.get()
+						break
+					except pywikibot.IsRedirectPage:
+						page = page.getRedirectTarget()
 
-			# already tagged maybe?
-			oldtext = text.replace(unassessedCat, "")
-			if text.find(startTag) < 0:
-				text += "\n" + startTag + endTag + "\n"
-				if not debug:
-					# try :
-					#  page.put(text, comment=summary, minorEdit=False)
-					# except pywikibot.exceptions.LockedPageError:
-					#  print image.encode("utf-8") + " has an editprotected description page!"
-					tryPut(page, text, summary)
-				else:
-					pywikibot.output(
-						">>> \03{lightpurple}%s\03{default} <<<" % page.title()
-					)
-					pywikibot.showDiff(oldtext, text)
-		else:
-			print("Oops " + image + " doesn't exist...")
+				# already tagged maybe?
+				oldtext = text.replace(unassessedCat, "")
+				if text.find(startTag) < 0:
+					text += "\n" + startTag + endTag + "\n"
+					if not debug:
+						# try :
+						#  page.put(text, comment=summary, minorEdit=False)
+						# except pywikibot.exceptions.LockedPageError:
+						#  print image.encode("utf-8") + " has an editprotected description page!"
+						tryPut(page, text, summary)
+					else:
+						pywikibot.output(
+							">>> \03{lightpurple}%s\03{default} <<<" % page.title()
+						)
+						pywikibot.showDiff(oldtext, text)
+			else:
+				print("Oops " + image + " doesn't exist...")
 
 
 #
