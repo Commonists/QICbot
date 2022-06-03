@@ -89,10 +89,7 @@ def doTagging(imageList, startTag, endTag, summary):
                     )
                     pywikibot.showDiff(oldtext, text)
         else:
-			try:
-				print("Oops " + image.encode("utf-8") + " doesn't exist...")
-			except:
-				print("Error with" + str(image))
+			print("Oops " + image + " doesn't exist...")
 
 
 #
