@@ -56,11 +56,13 @@ parentRE = re.compile("^(.*)/[^/]*$")
 def doTagging(imageList, startTag, endTag, summary):
     global SITE, debug
     for image in imageList:
-		if 'File:' not in image:
-			image = "File:" + image
-        page = pywikibot.Page(SITE, image)
-
-        if page.exists():
+		try:
+			page = pywikibot.FilePage(SITE, image)
+		except ValueError:
+			print("Oops " + image + " isn't a file...")
+		else:
+			if page.exists():
+				# ... and the rest also indented one extra level
             print("Tagging " + image)
 
             # follow redirects to the actual image page
