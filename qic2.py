@@ -65,12 +65,13 @@ def doTagging(imageList, startTag, endTag, summary):
 				print("Tagging " + image)
 
 				# follow redirects to the actual image page
-				while True:
-					try:
-						text = page.get()
-						break
-					except pywikibot.IsRedirectPage:
-						page = page.getRedirectTarget()
+				if page.isRedirectPage():
+					page = page.getRedirectTarget()
+
+				try:
+					text = page.get()
+				except:
+					continue
 
 				# already tagged maybe?
 				oldtext = text.replace(unassessedCat, "")
