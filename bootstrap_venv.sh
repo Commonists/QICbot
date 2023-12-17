@@ -2,7 +2,7 @@
 
 # Needed for Toolforge nowadays
 # First run chmod ug+x bootstrap_venv.sh
-# Then run as toolforge jobs run bootstrap-venv --command "cd $PWD && ./bootstrap_venv.sh" --image python3.11 --wait
+# Then run as toolforge jobs run bootstrap-venv --command "cd $PWD && ./data/project/qic/qic_bot/bootstrap_venv.sh" --image python3.11 --wait
 
 # use bash strict mode
 set -euo pipefail
