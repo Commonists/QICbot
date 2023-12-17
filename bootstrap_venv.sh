@@ -2,7 +2,7 @@
 
 # Needed for Toolforge nowadays
 # First run chmod ug+x bootstrap_venv.sh
-# Then run as toolforge jobs run bootstrap-venv --command "cd $PWD && ./data/project/qic/qic_bot/bootstrap_venv.sh" --image python3.11 --wait
+# Then run as toolforge jobs run bootstrap-venv --command "cd $PWD && ./qic_bot/bootstrap_venv.sh" --image python3.11 --wait
 
 # use bash strict mode
 set -euo pipefail
@@ -17,7 +17,7 @@ python3 -m venv venv
 source venv/bin/activate
 
 # upgrade pip inside the venv and add support for the wheel package format
-pip3 install -U pip pywikibot
+pip3 install -U pip pywikibot requests requests_oauthlib
 
 # Change the following section depending on what your tool needs!
 
