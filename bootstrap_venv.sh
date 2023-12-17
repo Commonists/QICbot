@@ -1,6 +1,7 @@
 
 # Needed for Toolforge nowadays
-# Run as toolforge jobs run bootstrap-venv --command "cd $PWD && ./bootstrap_venv.sh" --image python3.11 --wait
+# First run chmod ug+x bootstrap_venv.sh
+# Then run as toolforge jobs run bootstrap-venv --command "cd $PWD && ./bootstrap_venv.sh" --image python3.11 --wait
 #!/bin/bash
 
 # use bash strict mode
