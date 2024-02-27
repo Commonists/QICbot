@@ -190,10 +190,10 @@ def tryPut(page, newText, comment):
 			page.put(newText, summary=comment, watch=None, minor=False)
 			break
 		except pywikibot.exceptions.LockedPageError:
-			print(title.encode("utf-8") + " is editprotected!")
+			print("%s is editprotected!" % title)
 			break
 		except:
-			print("write to '%s' seems to have failed" % title.encode("utf-8"))
+			print("write to '%s' seems to have failed" % title)
 			numTry -= 1
 			if numTry == 0:
 				print("giving up!")
