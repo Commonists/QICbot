@@ -206,6 +206,92 @@ def tryPut(page, newText, comment):
 						break
 
 
+
+#
+# Move Commons:Quality images/Recently promoted images
+#
+
+page = pywikibot.Page(SITE, promotedDump)
+
+if page.exists():
+	text = page.get(get_redirect=True)
+	newText = ""
+	for line in text.split("\n"):
+		image = galleryRE.search(line)
+		dest = moveRE.search(line)
+		if image != None and dest != None:
+			try:
+				galleryMove[dest.group(1)] += moveRE.sub("", line) + "\n"
+			except KeyError:
+				page2 = pywikibot.Page(SITE, pageName2 + dest.group(1))
+				if page2.exists():
+					galleryMove[dest.group(1)] = moveRE.sub("", line) + "\n"
+				else:
+					newText += line + ", '''Subgallery does not exist'''\n"
+		else:
+			newText += line + "\n"
+
+	if not debug:
+		# page.put( newText.rstrip("\n"), comment="moving categorized images", minorEdit=False )
+		tryPut(page, newText.rstrip("\n"), "Bot: Moving categorized images")
+	else:
+		pywikibot.output(">>> \03{lightpurple}%s\03{default} <<<" % page.title())
+		pywikibot.showDiff(text, newText.rstrip("\n"))
+
+for key in list(galleryMove.keys()):
+	print()
+	print(key)
+
+	try:
+		# Insert into subject/type gallery
+		page = pywikibot.Page(SITE, pageName2 + key)
+		if page.exists():
+			text = page.get(get_redirect=True)
+		else:
+			text = ""
+
+		newText = galleryInsert(galleryMove[key], text)
+
+		if text == newText:
+			print("Nothing to do here")
+			continue
+
+		if not debug:
+			tryPut(page, newText, "Bot: Sorted into the appropriate category")
+		else:
+			pywikibot.output(">>> \03{lightpurple}%s\03{default} <<<" % page.title())
+			pywikibot.showDiff(text, newText)
+
+		# Rebuild four image preview gallery
+		pagePath = pageName2 + key
+		while True:
+			print("trying %s/Sample" % pagePath)
+			page = pywikibot.Page(SITE, pagePath + "/Sample")
+			if page.exists():
+				text = page.get(get_redirect=True)
+			else:
+				parent = parentRE.search(pagePath)
+				if parent != None:
+					print("Going to parent's /Sample")
+					pagePath = parent.group(1)
+					continue
+				else:
+					print("sample gallery search failed at " + pagePath)
+					break
+
+			newText = galleryLimit(4, galleryInsert(galleryMove[key], text))
+
+			if not debug:
+				# page.put( newText, comment="rebuilding preview", minorEdit=False )
+				tryPut(page, newText, "Bot: Rebuilding preview")
+			else:
+				pywikibot.output(">>> \03{lightpurple}%s\03{default} <<<" % page.title())
+				pywikibot.showDiff(text, newText)
+			break
+	except:
+		continue
+
+
 #
 # Open QIC page and extract nominations
 #
@@ -495,89 +581,6 @@ if not debug:
 else:
 	pywikibot.output(">>> \03{lightpurple}%s\03{default} <<<" % page.title())
 	pywikibot.showDiff(oldtext, newText)
-
-#
-# Move Commons:Quality images/Recently promoted images
-#
-
-page = pywikibot.Page(SITE, promotedDump)
-
-if page.exists():
-	text = page.get(get_redirect=True)
-	newText = ""
-	for line in text.split("\n"):
-		image = galleryRE.search(line)
-		dest = moveRE.search(line)
-		if image != None and dest != None:
-			try:
-				galleryMove[dest.group(1)] += moveRE.sub("", line) + "\n"
-			except KeyError:
-				page2 = pywikibot.Page(SITE, pageName2 + dest.group(1))
-				if page2.exists():
-					galleryMove[dest.group(1)] = moveRE.sub("", line) + "\n"
-				else:
-					newText += line + ", '''Subgallery does not exist'''\n"
-		else:
-			newText += line + "\n"
-
-	if not debug:
-		# page.put( newText.rstrip("\n"), comment="moving categorized images", minorEdit=False )
-		tryPut(page, newText.rstrip("\n"), "Bot: Moving categorized images")
-	else:
-		pywikibot.output(">>> \03{lightpurple}%s\03{default} <<<" % page.title())
-		pywikibot.showDiff(text, newText.rstrip("\n"))
-
-for key in list(galleryMove.keys()):
-	print()
-	print(key)
-
-	# Insert into subject/type gallery
-	page = pywikibot.Page(SITE, pageName2 + key)
-	if page.exists():
-		text = page.get(get_redirect=True)
-	else:
-		text = ""
-
-	newText = galleryInsert(galleryMove[key], text)
-
-	if text == newText:
-		print("Nothing to do here")
-		continue
-
-	if not debug:
-		tryPut(page, newText, "Bot: Sorted into the appropriate category")
-	else:
-		pywikibot.output(">>> \03{lightpurple}%s\03{default} <<<" % page.title())
-		pywikibot.showDiff(text, newText)
-
-	# Rebuild four image preview gallery
-	pagePath = pageName2 + key
-	while True:
-		print("trying %s/Sample" % pagePath)
-		page = pywikibot.Page(SITE, pagePath + "/Sample")
-		if page.exists():
-			text = page.get(get_redirect=True)
-		else:
-			parent = parentRE.search(pagePath)
-			if parent != None:
-				print("Going to parent's /Sample")
-				pagePath = parent.group(1)
-				continue
-			else:
-				print("sample gallery search failed at " + pagePath)
-				break
-
-		newText = galleryLimit(4, galleryInsert(galleryMove[key], text))
-
-		if not debug:
-			# page.put( newText, comment="rebuilding preview", minorEdit=False )
-			tryPut(page, newText, "Bot: Rebuilding preview")
-		else:
-			pywikibot.output(">>> \03{lightpurple}%s\03{default} <<<" % page.title())
-			pywikibot.showDiff(text, newText)
-		break
-
-# sys.exit(0)
 
 if numChanges == 0:
 	print("No action taken")
