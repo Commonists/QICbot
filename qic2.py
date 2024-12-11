@@ -207,6 +207,65 @@ def tryPut(page, newText, comment):
 
 
 
+
+stopPage = pywikibot.Page(SITE, "Commons:Quality images candidates/stopBOT")
+stopPagetext = stopPage.get(get_redirect=True)
+stoptext = stopPagetext
+
+# abort if the qicbot marker is missing from the page
+if stoptext.find("<!-- QICBOT_ON -->") < 0:
+	print(
+		"the string <!-- QICBOT_ON --> was not found on page Commons:Quality images candidates/stopBOT"
+	)
+	sys.exit(0)
+
+inGallery = False
+inCRSection = False
+inConsensual = 0
+
+newText = ""
+numChanges = 0
+currentImage = ""
+currentHeading = ""
+currentStatus = 0
+currentArchive = ""
+
+# The following file is saved at $HOME
+bakArchiveFileName = "tmp.archive"
+
+
+def marshalData():
+	global bakArchiveFileName
+	f = open(bakArchiveFileName, "wb")
+	marshall.dump(archive, f)
+	marshall.dump(archiveCR, f)
+	marshall.dump(userNote, f)
+	marshall.dump(galleryMove, f)
+	marshall.dump(tagImages, f)
+	marshall.dump(unassessed, f)
+	f.close()
+
+
+consensual = ""
+
+if os.path.isfile(bakArchiveFileName):
+	f = open(bakArchiveFileName, "rb")
+	archive = marshall.load(f)
+	archiveCR = marshall.load(f)
+	userNote = marshall.load(f)
+	galleryMove = marshal.load(f)
+	tagImages = marshall.load(f)
+	unassessed = marshal.load(f)
+	f.close()
+else:
+	archive = ""
+	archiveCR = ""
+	userNote = {}
+	galleryMove = {}
+	tagImages = []
+	unassessed = []
+
+
 #
 # Move Commons:Quality images/Recently promoted images
 #
@@ -291,70 +350,12 @@ for key in list(galleryMove.keys()):
 	except:
 		continue
 
-
 #
 # Open QIC page and extract nominations
 #
 page = pywikibot.Page(SITE, pageName + "/candidate list")
 text = page.get(get_redirect=True)
 oldtext = text
-
-stopPage = pywikibot.Page(SITE, "Commons:Quality images candidates/stopBOT")
-stopPagetext = stopPage.get(get_redirect=True)
-stoptext = stopPagetext
-
-# abort if the qicbot marker is missing from the page
-if stoptext.find("<!-- QICBOT_ON -->") < 0:
-	print(
-		"the string <!-- QICBOT_ON --> was not found on page Commons:Quality images candidates/stopBOT"
-	)
-	sys.exit(0)
-
-inGallery = False
-inCRSection = False
-inConsensual = 0
-
-newText = ""
-numChanges = 0
-currentImage = ""
-currentHeading = ""
-currentStatus = 0
-currentArchive = ""
-
-# The following file is saved at $HOME
-bakArchiveFileName = "tmp.archive"
-
-
-def marshalData():
-	global bakArchiveFileName
-	f = open(bakArchiveFileName, "wb")
-	marshall.dump(archive, f)
-	marshall.dump(archiveCR, f)
-	marshall.dump(userNote, f)
-	marshall.dump(galleryMove, f)
-	marshall.dump(tagImages, f)
-	marshall.dump(unassessed, f)
-	f.close()
-
-
-consensual = ""
-
-if os.path.isfile(bakArchiveFileName):
-	f = open(bakArchiveFileName, "rb")
-	archive = marshall.load(f)
-	archiveCR = marshall.load(f)
-	userNote = marshall.load(f)
-	galleryMove = marshal.load(f)
-	tagImages = marshall.load(f)
-	unassessed = marshal.load(f)
-	f.close()
-else:
-	archive = ""
-	archiveCR = ""
-	userNote = {}
-	galleryMove = {}
-	tagImages = []
-	unassessed = []
 
 
 for line in text.split("\n"):
