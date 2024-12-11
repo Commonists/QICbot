@@ -356,6 +356,7 @@ for key in list(galleryMove.keys()):
 page = pywikibot.Page(SITE, pageName + "/candidate list")
 text = page.get(get_redirect=True)
 oldtext = text
+newText = ''
 
 
 for line in text.split("\n"):
