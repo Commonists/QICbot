@@ -58,9 +58,6 @@ def doTagging(imageList, startTag, endTag, summary):
 	for image in imageList:
 		try:
 			page = pywikibot.FilePage(SITE, image)
-		except ValueError:
-			print("Oops " + image + " isn't a file...")
-		else:
 			if page.exists():
 				print("Tagging " + image)
 
@@ -90,6 +87,9 @@ def doTagging(imageList, startTag, endTag, summary):
 						pywikibot.showDiff(oldtext, text)
 			else:
 				print("Oops " + image + " doesn't exist...")
+		except:
+			print("Oops " + image + " isn't a file...")
+
 
 
 #
