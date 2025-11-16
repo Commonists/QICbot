@@ -25,6 +25,8 @@ vNomination = "{{/Nomination|"
 vPromotion = "{{/Promotion|"
 vDiscuss = "{{/Discuss|"
 
+userpageSection = "\n==Quality Image Promotion (" + datetime.datetime.utcnow().strftime("%d %B %Y") + ")==\n"
+
 # note the missing closing braces, they are added below!
 QITag = "{{QualityImage"
 
@@ -705,7 +707,7 @@ for key in list(userNote.keys()):
 				+ "}}<br>What better way than starting off with a Quality Image promotion could there be? :-) --~~~~\n\n"
 			)
 
-		text = text + "\n==Quality Image Promotion==\n" + userNote[key] + "\n--~~~~\n"
+		text = text + userpageSection + userNote[key] + "\n--~~~~\n"
 		if not debug:
 			# page.put(text, comment='Notify user of promoted Quality Image(s)', minorEdit=False)
 			tryPut(page, text, "Bot: Notify user of promoted Quality Image(s)")
